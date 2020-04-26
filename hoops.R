@@ -22,7 +22,7 @@ melo %>%
   annotate("text", label = 'First Team \n All-Rookie \n 03-04', x = 1, y = 19.4, size = 3) + 
   annotate("text", label = "2013 NBA Scoring \n Champion (28.7 ppg)", x = 11, y = 30, size = 3.2, colour = "black") + 
   labs(title = 'Carmelo Anthony PPG', 
-       subtitle = '2018-19 HOU Season excluded (10 games)')
+       subtitle = '2018-19 HOU Season excluded (10 games)') 
 
 
 # /players/c/cartevi01.html ## vince carter
