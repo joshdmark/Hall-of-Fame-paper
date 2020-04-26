@@ -1,5 +1,5 @@
 ---
-title: "HOF Paper"
+title: "HOF Paper" 
 author: "Josh Mark"
 output: 
   html_document:
