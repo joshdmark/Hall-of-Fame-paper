@@ -1,0 +1,113 @@
+---
+title: "HOF Paper"
+author: "Josh Mark"
+output: 
+  html_document:
+    code_folding: 'hide'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = F)
+```
+
+Carmelo Anthony belongs in the Basketball Hall of Fame, without question. Not only do his NBA statistics and accolades confirm his belonging, but his collegiate and international play only help to augment his resume.  
+
+**Syracuse career (2002 - 2003)**
+
+In his lone 2002-03 season at Syracuse, Anthony averaged 22.2 points and 10 rebounds per game^1^ and earned second-team All-America honors. He also led Syracuse to a national championship, where he scored 33 points and grabbed 14 rebounds in the national semifinal, then followed that performance with a 20-point, 10-rebound, 7-assist game in the national championship. Anthony became the first freshman^2^ to win the Final Four Most Outstanding Player in 2003 since Pervis Ellison (Louisville) achieved the same feat in 1986. Since 2003, only 2 other players have won Final Four MOP as freshmen (Anthony Davis and Tyus Jones)^3^.  
+
+**Team USA career (2004 – 2016)**
+
+Anthony has a legitimate case to be known as the greatest men’s Olympic basketball player in history. He is one of three men’s basketball Olympians (from all countries) to win 4 medals^4^, and of those three players is the only one to have won 3 gold medals (2008, 2012, 2016). Anthony holds the record for the most points scored in a Team USA Olympic basketball game, where he dropped 37 points in an astounding 14 minutes played against Nigeria in the 2012 London Games. He also is tied for the second-most points in an Olympic game (31). Anthony is the owner of the most 3-point field goals made in a Team USA game (10 makes on 12 3-point attempts, 83.3%), which he did in the same 2012 Nigeria performance^5^. "Olympic Melo's” statistics and performances on their own are worthy of Hall of Fame discussion. 
+
+**NBA Career (2004 – Present)**
+
+Coming out of Syracuse, Anthony was the 3rd pick in the 2003 draft, selected by the Denver Nuggets. Immediately in his NBA career, Anthony was a “walking bucket” averaging 21 points per game, earning a first-team NBA All-Rookie selection^6^. Prior to his two most recent seasons (2017/18 OKC, 2018/19 HOU), Anthony never averaged below 20 points per game for 14 consectuive seasons, a feat that has only been accomplished by Michael Jordan, LeBron James, Kevin Durant, Bob Pettit and Joel Embiid (3 seasons). Aside from Embiid, the other 4 players to achieve this are either already in the Hall of Fame (Pettit, Jordan) or are surefire Hall of Famers (James, Durant). Anthony averaged 28.7 points per game in his 2012-2013 season with the New York Knicks, winning the NBA scoring title (highest average points per game in a season). All other HOF-eligible scoring title winners have been selected to the Hall of Fame, which only adds to Anthony's case to be selected when he is eligible. Figure 1 below shows Anthony’s scoring averages by season (2018-19 season with HOU is excluded because it was only 10 games). 
+
+**Figure 1.** Carmelo Anthony scoring averages by season.  
+```{r}
+library(ballr)
+library(tidyverse)
+library(ggthemes)
+melo_stats <- NBAPlayerPerGameStats('/players/a/anthoca01.html') %>% data.frame()
+melo <- melo_stats[c(1:8, 11:17), ] %>%  # exclude HOU (10 games)
+    mutate(year = 1:nrow(.), 
+           tm = ifelse(tm == 'TOT', 'DEN/NYK (Trade)', tm)) %>% 
+  mutate(short_season = str_sub(season, 3, 7))
+
+### melo scoring graph
+season_vector <- melo$season
+short_season_vector <- melo$short_season
+melo <- melo %>% 
+  mutate(season = factor(season, levels = season_vector)) %>% 
+  mutate(short_season = factor(short_season, levels = short_season_vector))
+
+melo %>% 
+  rename(Team = tm) %>%  
+  ggplot() + 
+  geom_point(aes(short_season, pts)) + 
+  geom_line(aes(year, pts)) + 
+  geom_label(aes(year,pts, label = pts, fill = Team), size = 3.5, col = 'white') + 
+  scale_fill_manual(values = c("skyblue", "lightgrey", "blue", "#ff7f00")) + 
+  theme_fivethirtyeight() +
+  theme(legend.position = 'bottom') + 
+  annotate("text", label = 'First Team \n All-Rookie \n 03-04', x = 1.15, y = 19.3, size = 3) + 
+  annotate("text", label = "2013 NBA Scoring \n Champion (28.7 ppg)", x = 11, y = 29.9, size = 3, colour = "black") + 
+  labs(title = 'Carmelo Anthony PPG', 
+       subtitle = '2018-19 HOU Season excluded (10 games)')
+```
+
+Other players that can be compared to Carmelo Anthony for Hall of Fame worthiness include Paul Pierce, Tracy McGrady and Vince Carter. Positionally they are relatively similar, but looking at the below key statistics in Figure 2, we can see Anthony’s Hall of Fame merit brought to light. Anthony leads the other three players in free-throw percentage, minutes played, points per game, and rebounds per game. While he may not have been a Defensive Player of the Year candidate, Anthony's scoring prowess was unquestioned. He ranks 19th all-time in points scored; a list of players where the top 30 scorers are either already in the Hall or are unquestioned Hall of Famers when eligible (i.e. Nowitzki, Bryant, Duncan).
+
+**Figure 2.** Anthony’s comparison to Pierce, McGrady, Carter. 
+```{r}
+# /players/c/cartevi01.html ## vince carter
+vc_stats <- NBAPlayerPerGameStats('/players/c/cartevi01.html') %>% data.frame()
+vc_career <- vc_stats %>% filter(season == 'Career') %>% 
+  mutate(player = 'Carter')
+
+# /players/p/piercpa01.html ## paul pierce
+pp_stats <- NBAPlayerPerGameStats('/players/p/piercpa01.html') %>% data.frame()
+pp_career <- pp_stats %>% filter(season == 'Career') %>% 
+  mutate(player = 'Pierce')
+
+# /players/m/mcgratr01.html ## tracy mcgrady
+tm_stats <- NBAPlayerPerGameStats('/players/m/mcgratr01.html') %>% data.frame()
+tm_career <- tm_stats %>% filter(season == 'Career') %>% 
+  mutate(player = 'McGrady')
+
+# melo career
+melo_career <- NBAPlayerPerGameStats('/players/a/anthoca01.html') %>% data.frame() %>% 
+  filter(season == 'Career') %>% 
+  mutate(player = 'Anthony')
+
+## compare all careers
+careers <- rbind(melo_career, vc_career, pp_career, tm_career)
+graph_data <- careers %>% 
+  mutate(ftpercent = ftpercent * 100) %>% 
+  select(player, PPG = pts, `FT%` = ftpercent, RPG = trb, MP = mp) %>% 
+  gather(key = 'stat', value = 'value', -player)
+graph_data %>% 
+  ggplot() + 
+  geom_col(aes(x = player, y = value, fill = player), alpha = .9) + 
+  geom_label(aes(player, 1, label = value), size = 4, col = 'black') + 
+  scale_fill_manual(values = c('darkblue', 'darkgreen', 'darkred', 'purple')) + 
+  facet_wrap(.~stat, scales = 'free') + 
+  labs(fill = 'Player', title = 'Carmelo Anthony vs HOF Candidates/Comparisons') + 
+  theme_fivethirtyeight() + 
+  theme(legend.position = 'bottom', element_blank())
+```
+
+Anthony is a 10-time NBA All-Star selection^7^. All other HOF-eligible players with at least 9 all-star selections have been inducted into the Hall. He was selected to the All-NBA teams 6 times, twice to the Second Team (2010, 2013) and four times to the Third Team (2006, 2007, 2009, 2012). Considering all of Anthony’s accolades collegiately, internationally and professionally, Carmelo Anthony deserves to be recognized as one of the greatest pure scorers in basketball history, a mark that is worthy of nothing less than a Naismith Basketball Hall of Fame selection.   
+
+---
+
+**Sources**
+
+1.  https://www.sports-reference.com/cbb/players/carmelo-anthony-1.html 
+2.  https://athlonsports.com/college-basketball/best-freshman-seasons-college-basketball-history 
+3.  https://www.sports-reference.com/cbb/awards/ncaa-mop.html 
+4.  https://en.wikipedia.org/wiki/List_of_Olympic_medalists_in_basketball  
+5.  https://www.usab.com/history/national-team-mens/us-mens-olympic-games-records.aspx 
+6.  https://www.nba.com/history/awards/all-rookie-team 
+7.  https://www.basketball-reference.com/awards/all_star_by_player.html 
